@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 
 const IdentityContext = createContext(null);
 const STORAGE_KEY_ID = 'user_secret_id';
@@ -79,19 +79,36 @@ function buildIdentity() {
 }
 
 function readStoredIdentity() {
-  const storedId = localStorage.getItem(STORAGE_KEY_ID);
-  const storedAlias = localStorage.getItem(STORAGE_KEY_ALIAS);
+  try {
+    const storedId = localStorage.getItem(STORAGE_KEY_ID);
+    const storedAlias = localStorage.getItem(STORAGE_KEY_ALIAS);
 
-  if (storedId && storedAlias) {
-    return { id: storedId, alias: storedAlias };
+    if (storedId && storedAlias) {
+      return { id: storedId, alias: storedAlias };
+    }
+
+    // Repair a partially saved identity to keep one stable profile.
+    if (storedId || storedAlias) {
+      return {
+        id: storedId || generateUserId(),
+        alias: storedAlias || generateAlias(),
+      };
+    }
+  } catch (error) {
+    // localStorage may be unavailable in some browser privacy modes.
+    console.error('Unable to read identity from localStorage:', error);
   }
 
   return null;
 }
 
 function persistIdentity(identity) {
-  localStorage.setItem(STORAGE_KEY_ID, identity.id);
-  localStorage.setItem(STORAGE_KEY_ALIAS, identity.alias);
+  try {
+    localStorage.setItem(STORAGE_KEY_ID, identity.id);
+    localStorage.setItem(STORAGE_KEY_ALIAS, identity.alias);
+  } catch (error) {
+    console.error('Unable to persist identity to localStorage:', error);
+  }
 }
 
 function getInitialUser() {
@@ -119,38 +136,37 @@ export const useIdentity = () => {
 };
 
 export const IdentityProvider = ({ children }) => {
-  const [user, setUser] = useState(getInitialUser);
+  const [user, setUserState] = useState(getInitialUser);
 
-  const updateAlias = (nextAlias) => {
+  const setUser = useCallback((nextUser) => {
+    setUserState((previousUser) => {
+      const resolvedUser = typeof nextUser === 'function' ? nextUser(previousUser) : nextUser;
+      persistIdentity(resolvedUser);
+      return resolvedUser;
+    });
+  }, []);
+
+  const updateAlias = useCallback((nextAlias) => {
     const trimmedAlias = nextAlias?.trim();
 
     if (!trimmedAlias) {
       return;
     }
 
-    setUser((prev) => {
-      const updated = { ...prev, alias: trimmedAlias };
-      persistIdentity(updated);
-      return updated;
-    });
-  };
+    setUser((prev) => ({ ...prev, alias: trimmedAlias }));
+  }, [setUser]);
 
-  const regenerateAlias = () => {
-    setUser((prev) => {
-      const updated = {
-        ...prev,
-        alias: generateAlias(),
-      };
-      persistIdentity(updated);
-      return updated;
-    });
-  };
+  const regenerateAlias = useCallback(() => {
+    setUser((prev) => ({
+      ...prev,
+      alias: generateAlias(),
+    }));
+  }, [setUser]);
 
-  const resetIdentity = () => {
+  const resetIdentity = useCallback(() => {
     const nextIdentity = buildIdentity();
     setUser(nextIdentity);
-    persistIdentity(nextIdentity);
-  };
+  }, [setUser]);
 
   const value = useMemo(
     () => ({
@@ -162,7 +178,7 @@ export const IdentityProvider = ({ children }) => {
       regenerateAlias,
       resetIdentity,
     }),
-    [user]
+    [user, setUser, updateAlias, regenerateAlias, resetIdentity]
   );
 
   return (
