@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 const IdentityContext = createContext();
 
@@ -16,12 +16,15 @@ export const IdentityProvider = ({ children }) => {
       setUser({ id: storedId, alias: storedAlias });
     } else {
       // Giả lập tạo mới (M2 sẽ viết logic random xịn hơn)
-      const newId = Math.random().toString(36).substring(2, 11);
-      const newAlias = "Dev Ẩn Danh #" + Math.floor(Math.random() * 999);
+      // eslint-disable-next-line no-unused-vars
+      const newUserData = {
+        id: Math.random().toString(36).substring(2, 11),
+        alias: "Dev Ẩn Danh #" + Math.floor(Math.random() * 999)
+      };
 
-      localStorage.setItem('user_secret_id', newId);
-      localStorage.setItem('user_alias', newAlias);
-      setUser({ id: newId, alias: newAlias });
+      localStorage.setItem('user_secret_id', newUserData.id);
+      localStorage.setItem('user_alias', newUserData.alias);
+      setUser(newUserData);
     }
   }, []);
 
