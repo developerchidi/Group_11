@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useMemo, useState } from 'react';
 
-const IdentityContext = createContext();
+const IdentityContext = createContext(null);
+const STORAGE_KEY_ID = 'user_secret_id';
+const STORAGE_KEY_ALIAS = 'user_alias';
 
 const ADJECTIVES = [
   'Silent',
@@ -69,31 +71,102 @@ function generateAlias() {
   return `${adjective}${noun}-${tag}`;
 }
 
-function getInitialUser() {
-  const storedId = localStorage.getItem('user_secret_id');
-  const storedAlias = localStorage.getItem('user_alias');
+function buildIdentity() {
+  return {
+    id: generateUserId(),
+    alias: generateAlias(),
+  };
+}
+
+function readStoredIdentity() {
+  const storedId = localStorage.getItem(STORAGE_KEY_ID);
+  const storedAlias = localStorage.getItem(STORAGE_KEY_ALIAS);
 
   if (storedId && storedAlias) {
     return { id: storedId, alias: storedAlias };
   }
 
-  const newId = generateUserId();
-  const newAlias = generateAlias();
+  return null;
+}
 
-  localStorage.setItem('user_secret_id', newId);
-  localStorage.setItem('user_alias', newAlias);
+function persistIdentity(identity) {
+  localStorage.setItem(STORAGE_KEY_ID, identity.id);
+  localStorage.setItem(STORAGE_KEY_ALIAS, identity.alias);
+}
 
-  return { id: newId, alias: newAlias };
+function getInitialUser() {
+  const storedIdentity = readStoredIdentity();
+
+  if (storedIdentity) {
+    return storedIdentity;
+  }
+
+  const newIdentity = buildIdentity();
+  persistIdentity(newIdentity);
+
+  return newIdentity;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
-export const useIdentity = () => useContext(IdentityContext);
+export const useIdentity = () => {
+  const context = useContext(IdentityContext);
+
+  if (!context) {
+    throw new Error('useIdentity must be used within an IdentityProvider');
+  }
+
+  return context;
+};
 
 export const IdentityProvider = ({ children }) => {
   const [user, setUser] = useState(getInitialUser);
 
+  const updateAlias = (nextAlias) => {
+    const trimmedAlias = nextAlias?.trim();
+
+    if (!trimmedAlias) {
+      return;
+    }
+
+    setUser((prev) => {
+      const updated = { ...prev, alias: trimmedAlias };
+      persistIdentity(updated);
+      return updated;
+    });
+  };
+
+  const regenerateAlias = () => {
+    setUser((prev) => {
+      const updated = {
+        ...prev,
+        alias: generateAlias(),
+      };
+      persistIdentity(updated);
+      return updated;
+    });
+  };
+
+  const resetIdentity = () => {
+    const nextIdentity = buildIdentity();
+    setUser(nextIdentity);
+    persistIdentity(nextIdentity);
+  };
+
+  const value = useMemo(
+    () => ({
+      user,
+      userId: user.id,
+      alias: user.alias,
+      setUser,
+      updateAlias,
+      regenerateAlias,
+      resetIdentity,
+    }),
+    [user]
+  );
+
   return (
-    <IdentityContext.Provider value={{ user, setUser }}>
+    <IdentityContext.Provider value={value}>
       {children}
     </IdentityContext.Provider>
   );
