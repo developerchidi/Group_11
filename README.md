@@ -14,7 +14,6 @@ Dự án được thực hiện bởi nhóm 7 thành viên đầy nhiệt huyế
 | **Hà Thái Cơ** | [@hathaico](https://github.com/hathaico) |
 | **Bùi Minh Mẫn** | [@minhman010104](https://github.com/minhman010104) |
 | **Huỳnh Minh Toàn** | [@toanhuynh110804](https://github.com/toanhuynh110804) |
-| **Trần Anh Kiệt** | [@AnhKiet0212](https://github.com/AnhKiet0212) |
 
 ## Công nghệ sử dụng (Tech Stack)
 
