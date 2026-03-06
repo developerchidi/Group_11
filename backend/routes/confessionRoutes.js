@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
-// Controller will be imported here by M6
+const {
+  getAllConfessions,
+  createConfession,
+} = require('../controllers/confessionController');
 
-router.get('/', (req, res) => {
-  res.json({ message: "API list confessions" });
-});
+// GET /api/confessions
+router.get('/', getAllConfessions);
 
-router.post('/', (req, res) => {
-  res.json({ message: "API create confession" });
-});
+// POST /api/confessions
+router.post('/', createConfession);
 
 module.exports = router;

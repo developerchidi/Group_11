@@ -19,12 +19,26 @@ app.get('/', (req, res) => {
   res.send('Dev Confession API IS RUNNING...');
 });
 
-// Database Connection
+// Database Connection (dùng chung cho toàn bộ api)
 if (process.env.MONGODB_URI) {
-  mongoose.connect(process.env.MONGODB_URI)
+  mongoose
+    .connect(process.env.MONGODB_URI, {
+      // tuỳ chọn tối ưu: useNewUrlParser, useUnifiedTopology được bật mặc định >6
+    })
     .then(() => console.log('Connected to MongoDB Atlas'))
     .catch(err => console.error('MongoDB connection error:', err));
 }
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error(err);
+  const status = err.status || 500;
+  res.status(status).json({
+    error: {
+      message: err.message || 'Internal Server Error',
+    },
+  });
+});
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
