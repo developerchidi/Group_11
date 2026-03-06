@@ -32,3 +32,5 @@ Dự án được thực hiện bởi nhóm 7 thành viên đầy nhiệt huyế
 - Đang trong quá trình triển khai
 ---
 *Dự án thuộc học phần Quản lý dự án phần mềm - 2026*
+
+> Slogan: Học Git để trở thành Leader chuyên nghiệp!
