@@ -8,7 +8,7 @@ Dự án được thực hiện bởi nhóm 7 thành viên đầy nhiệt huyế
 
 | Thành viên | GitHub |
 | :--- | :--- |
-| **Nguyễn Thành Lộc (Lộc)** | [@developerchidi](https://github.com/developerchidi) |
+| **Nguyễn Thành Lộc** | [@developerchidi](https://github.com/developerchidi) |
 | **Trần Thị Kim Nghi** | [@TranThiKimNghi](https://github.com/TranThiKimNghi) |
 | **Nguyễn Trung Kiên** | [@TrungKevin](https://github.com/TrungKevin) |
 | **Hà Thái Cơ** | [@hathaico](https://github.com/hathaico) |
