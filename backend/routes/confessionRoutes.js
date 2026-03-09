@@ -1,13 +1,21 @@
 const express = require('express');
 const router = express.Router();
-// Controller will be imported here by M6
+const {
+  getAllConfessions,
+  createConfession,
+  voteConfession,
+} = require('../controllers/confessionController');
 
-router.get('/', (req, res) => {
-  res.json({ message: "API list confessions" });
-});
+const badWords = require('../middleware/badWordsFilter');
+const rateLimiter = require('../middleware/rateLimiter');
 
-router.post('/', (req, res) => {
-  res.json({ message: "API create confession" });
-});
+// GET /api/confessions
+router.get('/', getAllConfessions);
+
+// POST /api/confessions (rate limit + kiểm tra bad words)
+router.post('/', rateLimiter, badWords, createConfession);
+
+// vote endpoint
+router.post('/:id/vote', rateLimiter, voteConfession);
 
 module.exports = router;
