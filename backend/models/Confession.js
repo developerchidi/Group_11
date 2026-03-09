@@ -25,8 +25,12 @@ const confessionSchema = new mongoose.Schema({
   voted_users: [String],
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
+    index: true // tạo index giúp sort và lọc nhanh hơn
   }
 });
+
+// compound index example: tìm theo author và thời gian
+confessionSchema.index({ author_id: 1, createdAt: -1 });
 
 module.exports = mongoose.model('Confession', confessionSchema);

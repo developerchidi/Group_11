@@ -2,7 +2,7 @@ import React from 'react';
 import { useIdentity } from './context/IdentityContext';
 
 function App() {
-  const { user } = useIdentity();
+  const { alias, userId } = useIdentity();
 
   return (
     <div className="min-h-screen bg-slate-900 text-white font-sans">
@@ -15,7 +15,11 @@ function App() {
           <div className="flex items-center gap-4">
             <div className="bg-slate-800 px-4 py-2 rounded-full border border-slate-700">
               <span className="text-sm text-slate-400 mr-2">Định danh:</span>
-              <span className="text-sm font-semibold text-teal-400">{user?.alias || '...'}</span>
+              <span className="text-sm font-semibold text-teal-400">{alias || '...'}</span>
+            </div>
+            <div className="bg-slate-800 px-4 py-2 rounded-full border border-slate-700 hidden md:block">
+              <span className="text-sm text-slate-400 mr-2">User ID:</span>
+              <span className="text-sm font-semibold text-blue-300">{userId?.slice(0, 8) || '...'}</span>
             </div>
           </div>
         </div>
