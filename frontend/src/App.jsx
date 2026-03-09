@@ -1,5 +1,6 @@
 import React from 'react';
 import { useIdentity } from './context/IdentityContext';
+import PostForm from './components/PostForm';
 
 function App() {
   const { user } = useIdentity();
@@ -29,6 +30,8 @@ function App() {
           </h2>
           <p className="text-slate-400 text-lg">Chia sẻ tâm tư, lỗi lầm và những khoảnh khắc "Eureka" một cách ẩn danh.</p>
         </div>
+
+        <PostForm user={user} />
 
         {/* Skeleton List */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
